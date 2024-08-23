@@ -4,6 +4,13 @@
 (define-constant CONTRACT_OWNER tx-sender)
 (define-constant VOTING_PERIOD u1000)
 
+;; Define error codes
+(define-constant ERR-NOT-FOUND u100)
+(define-constant ERR-VOTING-ENDED u101)
+(define-constant ERR-ALREADY-VOTED u102)
+(define-constant ERR-VOTING-NOT-ENDED u103)
+(define-constant ERR-NOT-AUTHORIZED u104)
+
 ;; Define data maps
 (define-map Proposals
     { proposal-id: uint }
@@ -58,17 +65,20 @@
 (define-public (vote (proposal-id uint) (vote bool))
     (let
         (
-            (proposal (unwrap! (get-proposal proposal-id) (err u1)))
+            (proposal (unwrap! (get-proposal proposal-id) 
+                (err (to-uint ERR-NOT-FOUND))))
             (existing-vote (get-vote tx-sender proposal-id))
         )
-        (asserts! (< block-height (get end-block-height proposal)) (err u2))
-        (asserts! (is-none existing-vote) (err u3))
-
+        (asserts! (< block-height (get end-block-height proposal)) 
+            (err (to-uint ERR-VOTING-ENDED)))
+        (asserts! (is-none existing-vote) 
+            (err (to-uint ERR-ALREADY-VOTED)))
+        
         (map-set Votes
             { voter: tx-sender, proposal-id: proposal-id }
             { vote: vote }
         )
-
+        
         (map-set Proposals
             { proposal-id: proposal-id }
             (merge proposal 
@@ -86,13 +96,28 @@
 (define-public (end-voting (proposal-id uint))
     (let
         (
-            (proposal (unwrap! (get-proposal proposal-id) (err u1)))
+            (proposal (unwrap! (get-proposal proposal-id) 
+                (err (to-uint ERR-NOT-FOUND))))
         )
-        (asserts! (>= block-height (get end-block-height proposal)) (err u4))
-        (asserts! (is-eq tx-sender CONTRACT_OWNER) (err u5))
-
+        (asserts! (>= block-height (get end-block-height proposal)) 
+            (err (to-uint ERR-VOTING-NOT-ENDED)))
+        (asserts! (is-eq tx-sender CONTRACT_OWNER) 
+            (err (to-uint ERR-NOT-AUTHORIZED)))
+        
         ;; Implement any post-voting logic here
-
+        
         (ok true)
+    )
+)
+
+;; Error handling helper function
+(define-read-only (get-error-message (error-code uint))
+    (match error-code
+        ERR-NOT-FOUND "Proposal not found"
+        ERR-VOTING-ENDED "Voting period has ended"
+        ERR-ALREADY-VOTED "User has already voted"
+        ERR-VOTING-NOT-ENDED "Voting period has not ended yet"
+        ERR-NOT-AUTHORIZED "Not authorized to perform this action"
+        "Unknown error"
     )
 )

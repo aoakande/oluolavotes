@@ -63,13 +63,23 @@
 ;; @returns (string-utf8 50) The corresponding error message
 (define-read-only (get-error-message (error-code (response bool uint)))
     (match error-code
-        ERR-NOT-FOUND "Proposal not found"
-        ERR-VOTING-ENDED "Voting period has ended"
-        ERR-ALREADY-VOTED "User has already voted"
-        ERR-VOTING-NOT-ENDED "Voting period has not ended yet"
-        ERR-NOT-AUTHORIZED "Not authorized to perform this action"
-        (err u0) "Unknown error"
-        (ok _) "No error"
+        ok-value "No error"
+        err-value (if (is-eq err-value u100)
+            "Proposal not found"
+            (if (is-eq err-value u101)
+                "Voting period has ended"
+                (if (is-eq err-value u102)
+                    "User has already voted"
+                    (if (is-eq err-value u103)
+                        "Voting period has not ended yet"
+                        (if (is-eq err-value u104)
+                            "Not authorized to perform this action"
+                            "Unknown error"
+                        )
+                    )
+                )
+            )
+        )
     )
 )
 

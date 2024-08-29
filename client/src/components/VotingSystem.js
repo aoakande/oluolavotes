@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useConnect } from '@stacks/connect-react';
-import { fetchProposals } from './votingApi';
+import { fetchProposals } from '../utils/votingApi';
 import ProposalList from './ProposalList';
 import CreateProposal from './CreateProposal';
 

@@ -16,11 +16,16 @@ const VotingSystem = () => {
     getProposals();
   }, []);
 
+  const refreshProposals = async () => {
+    const fetchedProposals = await fetchProposals();
+    setProposals(fetchedProposals);
+  };
+
   return (
     <div>
       <h1>Decentralized Voting System</h1>
-      <CreateProposal doContractCall={doContractCall} onProposalCreated={() => fetchProposals()} />
-      <ProposalList proposals={proposals} doContractCall={doContractCall} onVoteOrEnd={() => fetchProposals()} />
+      <CreateProposal doContractCall={doContractCall} onProposalCreated={refreshProposals} />
+      <ProposalList proposals={proposals} doContractCall={doContractCall} onVoteOrEnd={refreshProposals} />
     </div>
   );
 };

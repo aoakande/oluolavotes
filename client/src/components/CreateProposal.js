@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { stringAsciiCV } from '@stacks/transactions';
-import { getContractInfo } from './votingApi';
+import { getContractInfo } from '../utils/votingApi';
 
 const CreateProposal = ({ doContractCall, onProposalCreated }) => {
   const [newProposal, setNewProposal] = useState({ title: '', description: '' });

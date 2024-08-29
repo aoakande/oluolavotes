@@ -13,7 +13,7 @@ const AppContainer = styled.div`
 const App = () => {
   const appDetails = {
     name: 'Decentralized Voting System',
-    // icon: '/path/to/icon.png',
+    icon: './logo.png',
   };
 
   return (
